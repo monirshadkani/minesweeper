@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -7,13 +8,20 @@
     <title>MineSweeper</title>
     <script src="index.js" defer></script>
 </head>
+
 <body>
     <header></header>
-<div class="gridcontainer">
-    <div class="gridbox" id="numbox1"></div>
-</div>
+
+    <div class="difficultybuttonscontainer">
+        <button class="easybutton" id="easy" >Easy</button>
+        <button class="intermediatebutton" id="intermediate">Intermediate</button>
+        <button class="expertbutton" id="expert">Expert</button>
+    </div>
+
+    <div class="grid" id="grid" firstClicked="false"></div>
 
 
     <footer></footer>
 </body>
+
 </html>
