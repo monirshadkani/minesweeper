@@ -1,0 +1,10 @@
+.gridbox {
+    width: 40px; /* Width of the box */
+    height: 40px; /* Height of the box */
+    border: 1px solid #000; /* Border for visual separation */
+    display: inline-block; /* Ensures boxes are aligned like a grid */
+    text-align: center; /* Center-align any content inside the box */
+    line-height: 40px; /* Centers text vertically */
+    background-color: #ccc; /* Default background color */
+    cursor: pointer; /* Change cursor to indicate interactivity */
+  }
