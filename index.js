@@ -5,10 +5,12 @@ const intermediateButton = document.getElementById('intermediate');
 const expertButton = document.getElementById('expert');
 const masterButton = document.getElementById('master');
 
+const flagCountDom = document.getElementById('counter')
+
 const grid = document.getElementById('grid');
 
 const cellsInfo =[];
-
+const bombCount= 0;
 
 let firstClicked = false;
 
@@ -19,6 +21,7 @@ masterButton.addEventListener('click', ()=> createGrid(30));
 
 
 function createGrid(number){
+    flagCountDom.innerText = 0
     cellsInfo.length =0;
     grid.innerHTML = '';
     firstClicked = false;
@@ -34,7 +37,7 @@ function createGrid(number){
             cell.setAttribute('y-p', j);
             cell.setAttribute('id', 'x'+i+'y'+j);
 
-            const cellObj = new Cell(i, j, false, false)
+            const cellObj = new Cell(i, j, false, false, false)
             cellsInfo.push(cellObj);
 
             const image = cell.appendChild(img);
@@ -44,9 +47,14 @@ function createGrid(number){
         } 
     }
     grid.addEventListener('click', clickAction);
+    grid.addEventListener('contextmenu', rightClickHandler);
 
 }
 
+const rightClickHandler = (e) => {
+    e.preventDefault();
+    setFlag(e);
+}
 
 const clickAction = (e) => {
 
@@ -59,7 +67,7 @@ const clickAction = (e) => {
     );
 
 //first click
-    if (!firstClicked) {
+    if (!firstClicked && cellsInfo[cellIndex].isFlagged == false) {
         firstClicked = true;
         cellsInfo[cellIndex].isClicked = true;
         clickedCellDiv.firstChild.src = '/assets/empty.png';
@@ -83,11 +91,14 @@ const clickAction = (e) => {
     }
 //any other clicks
 
-    else{
+    else if( firstClicked && cellsInfo[cellIndex].isFlagged == false){
         if (!cellsInfo[cellIndex].isBomb){
             clickedCellDiv.firstChild.src = '/assets/empty.png';
         }
         else{
+            grid.removeEventListener('click', clickAction);
+            grid.removeEventListener('contextmenu', rightClickHandler)
+
             for(i = 0; i < cellsInfo.length; i++){
                 if(cellsInfo[i].isBomb){
                     document.getElementById(`x${cellsInfo[i].xposition}y${cellsInfo[i].yposition}`).firstChild.src = '/assets/bomb.png';
@@ -134,13 +145,43 @@ function setBombs(bombNumber) {
 
 }
 
+function setFlag(e){
+
+    const x = parseInt(e.target.parentElement.getAttribute('x-p'));
+    const y = parseInt(e.target.parentElement.getAttribute('y-p'));
+    const clickedCellDiv = document.getElementById(`x${x}y${y}`);
+
+    const cellIndex = cellsInfo.findIndex(cellObj => 
+        cellObj.xposition === x && cellObj.yposition === y
+    );
+    if(cellsInfo[cellIndex].isFlagged == false && cellsInfo[cellIndex].isClicked == false){
+
+    cellsInfo[cellIndex].isFlagged = true;
+    clickedCellDiv.firstChild.src = '/assets/flag.png';
+
+    }
+    else if(cellsInfo[cellIndex].isFlagged == true && cellsInfo[cellIndex].isClicked == false){
+        clickedCellDiv.firstChild.src = '/assets/normal.png';
+        cellsInfo[cellIndex].isFlagged = false;
+
+    }
+
+    setFlagCount()
+}
+ 
+
+function setFlagCount(){
+    
+    flagCountDom.innerText = cellsInfo.filter(cell => cell.isFlagged).length;
+}
 
 
 class Cell {
-    constructor(xposition, yposition, isBomb, isClicked) {
+    constructor(xposition, yposition, isBomb, isClicked, isFlagged) {
         this.xposition = xposition; 
         this.yposition = yposition; 
         this.isBomb = isBomb;
         this.isClicked = isClicked;
+        this.isFlagged = isFlagged;
     }
 }
