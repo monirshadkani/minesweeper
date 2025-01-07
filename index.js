@@ -8,6 +8,8 @@ const masterButton = document.getElementById('master');
 const grid = document.getElementById('grid');
 
 const cellsInfo =[];
+
+
 let firstClicked = false;
 
 easyButton.addEventListener('click', ()=> createGrid(9));
@@ -47,19 +49,19 @@ function createGrid(number){
 
 
 const clickAction = (e) => {
+
+    const x = parseInt(e.target.parentElement.getAttribute('x-p'));
+    const y = parseInt(e.target.parentElement.getAttribute('y-p'));
+    const clickedCellDiv = document.getElementById(`x${x}y${y}`);
+
+    const cellIndex = cellsInfo.findIndex(cellObj => 
+        cellObj.xposition === x && cellObj.yposition === y
+    );
+
+//first click
     if (!firstClicked) {
         firstClicked = true;
-
-
-        const x = parseInt(e.target.parentElement.getAttribute('x-p'));
-        const y = parseInt(e.target.parentElement.getAttribute('y-p')); 
-
-        const cellIndex = cellsInfo.findIndex(cellObj => 
-            cellObj.xposition === x && cellObj.yposition === y
-        );
-
         cellsInfo[cellIndex].isClicked = true;
-        const clickedCellDiv = document.getElementById(`x${x}y${y}`);
         clickedCellDiv.firstChild.src = '/assets/empty.png';
 
         switch(cellsInfo.length) {
@@ -78,6 +80,25 @@ const clickAction = (e) => {
             default:
               alert('There was a problem generating bombs')
           }
+    }
+//any other clicks
+
+    else{
+        if (!cellsInfo[cellIndex].isBomb){
+            clickedCellDiv.firstChild.src = '/assets/empty.png';
+        }
+        else{
+            for(i = 0; i < cellsInfo.length; i++){
+                if(cellsInfo[i].isBomb){
+                    document.getElementById(`x${cellsInfo[i].xposition}y${cellsInfo[i].yposition}`).firstChild.src = '/assets/bomb.png';
+                }
+                else{
+                    document.getElementById(`x${cellsInfo[i].xposition}y${cellsInfo[i].yposition}`).firstChild.src = '/assets/empty.png';
+                }
+            }
+        }
+
+
     }
 };
 
@@ -104,15 +125,16 @@ function setBombs(bombNumber) {
     const cellIndex = cellsInfo.findIndex(cellObj => 
         cellObj.isClicked = true
     );
-
     const bombIndexes = getRandomIntsWithExclusion(0, cellsInfo.length-1, cellIndex ,bombNumber);
 
     for(i=0; i< bombIndexes.length; i++){
+        
         cellsInfo[bombIndexes[i]].isBomb = true;
     }
 
-
 }
+
+
 
 class Cell {
     constructor(xposition, yposition, isBomb, isClicked) {
