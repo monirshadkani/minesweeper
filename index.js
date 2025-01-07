@@ -49,8 +49,7 @@ function createGrid(number){
 const clickAction = (e) => {
     if (!firstClicked) {
         firstClicked = true;
-        console.log(cellsInfo)
-        console.log(cellsInfo.length)
+
 
         const x = parseInt(e.target.parentElement.getAttribute('x-p'));
         const y = parseInt(e.target.parentElement.getAttribute('y-p')); 
@@ -62,7 +61,23 @@ const clickAction = (e) => {
         cellsInfo[cellIndex].isClicked = true;
         const clickedCellDiv = document.getElementById(`x${x}y${y}`);
         clickedCellDiv.firstChild.src = '/assets/empty.png';
-        
+
+        switch(cellsInfo.length) {
+            case 81:
+                setBombs(10)
+              break;
+            case 256:
+                setBombs(40)
+              break;
+            case 484:
+                setBombs(100)
+                break;
+            case 900:
+                setBombs(250)
+                break;
+            default:
+              alert('There was a problem generating bombs')
+          }
     }
 };
 
@@ -76,15 +91,26 @@ function getRandomIntWithExclusion(min, max, excluded) {
 }
 
 function getRandomIntsWithExclusion(min, max, excluded, count) {
-    const results = [];
-    while (results.length < count) {
+    const results = new Set();
+    while (results.size < count) {
         const randomInt = getRandomIntWithExclusion(min, max, excluded);
-        results.push(randomInt);
+        results.add(randomInt);
     }
-    return results;
+    return Array.from(results); 
 }
 
 function setBombs(bombNumber) {
+
+    const cellIndex = cellsInfo.findIndex(cellObj => 
+        cellObj.isClicked = true
+    );
+
+    const bombIndexes = getRandomIntsWithExclusion(0, cellsInfo.length-1, cellIndex ,bombNumber);
+
+    for(i=0; i< bombIndexes.length; i++){
+        cellsInfo[bombIndexes[i]].isBomb = true;
+    }
+
 
 }
 
