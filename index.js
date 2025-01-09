@@ -28,7 +28,26 @@ function createGrid(number){
 
     resetTimer();
     
-    flagCountDom.innerText = 0;
+    let constBombNumber = 0
+
+    switch(number) {
+        case 9:
+            constBombNumber = 10
+          break;
+        case 16:
+            constBombNumber = 40
+          break;
+        case 22:
+            constBombNumber = 100
+            break;
+        case 30:
+            constBombNumber = 250
+            break;
+        default:
+          alert('There was a problem evaluating the flags')
+      }
+      
+    flagCountDom.innerText = constBombNumber;
 
     cellsInfo.length =0;
     grid.innerHTML = '';
@@ -90,7 +109,6 @@ const clickAction = (e) => {
         switch(cellsInfo.length) {
             case 81:
                 setBombs(10)
-
               break;
             case 256:
                 setBombs(40)
@@ -281,9 +299,9 @@ function updateTimer() {
 }
 
 function updateTimerDisplay() {
-    const minutes = Math.floor(elapsedTime / 60000);  // Convert to minutes
-    const seconds = Math.floor((elapsedTime % 60000) / 1000);  // Convert to seconds
-    const milliseconds = elapsedTime % 1000;  // Get the remaining milliseconds
+    const minutes = Math.floor(elapsedTime / 60000); 
+    const seconds = Math.floor((elapsedTime % 60000) / 1000); 
+    const milliseconds = elapsedTime % 1000;  
 
     document.getElementById("timer").innerText = 
         `${minutes < 10 ? "0" : ""}${minutes}:${seconds < 10 ? "0" : ""}${seconds}.${milliseconds < 100 ? "0" : ""}${milliseconds}`;
