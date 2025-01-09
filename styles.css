@@ -13,7 +13,13 @@
   background-color: #ddd;
   transform: scale(1.05);
 }
-p.counter, p.timer {
+p.counter {
+  font-size: 18px;
+  font-weight: bold;
+  text-align: center;
+  margin: 5px 0;
+}
+.timer {
   font-size: 18px;
   font-weight: bold;
   text-align: center;

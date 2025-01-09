@@ -14,6 +14,10 @@ const bombCount= 0;
 
 let firstClicked = false;
 
+let startTime = 0;  
+let elapsedTime = 0; 
+let running = false; 
+
 easyButton.addEventListener('click', ()=> createGrid(9));
 intermediateButton.addEventListener('click', ()=> createGrid(16));
 expertButton.addEventListener('click', ()=> createGrid(22));
@@ -21,6 +25,9 @@ masterButton.addEventListener('click', ()=> createGrid(30));
 
 
 function createGrid(number){
+
+    resetTimer();
+    
     flagCountDom.innerText = 0;
 
     cellsInfo.length =0;
@@ -77,11 +84,13 @@ const clickAction = (e) => {
         cellsInfo[cellIndex].isClicked = true;
 
         clickedCellDiv.firstChild.src = '/assets/empty.png';
+        startTimer();
 
 
         switch(cellsInfo.length) {
             case 81:
                 setBombs(10)
+
               break;
             case 256:
                 setBombs(40)
@@ -115,6 +124,7 @@ const clickAction = (e) => {
                     document.getElementById(`x${cellsInfo[i].xposition}y${cellsInfo[i].yposition}`).firstChild.src = '/assets/empty.png';
                 }
             }
+            stopTimer();
         }
 
 
@@ -194,8 +204,6 @@ function setFlag(e){
 function setFlagCount() {
     const bombCount = getBombCount(); 
     const flaggedCount = cellsInfo.filter(cell => cell.isFlagged).length;
-
-
     const remainingFlags = bombCount - flaggedCount;
 
     flagCountDom.innerText = remainingFlags >= 0 ? remainingFlags : 0;
@@ -241,6 +249,46 @@ function expandCells(cell) {
 function getBombCount() {
     return cellsInfo.filter(cell => cell.isBomb).length;
 }
+
+
+
+
+function startTimer() {
+    if (!running) {
+        startTime = Date.now() - elapsedTime;
+        running = true;
+        requestAnimationFrame(updateTimer);
+    }
+}
+
+function stopTimer() {
+    running = false;
+}
+
+function resetTimer() {
+    startTime = 0;
+    elapsedTime = 0;  
+    running = false;
+    updateTimerDisplay();  
+}
+
+function updateTimer() {
+    if (running) {
+        elapsedTime = Date.now() - startTime;  
+        updateTimerDisplay();  
+        requestAnimationFrame(updateTimer);  
+    }
+}
+
+function updateTimerDisplay() {
+    const minutes = Math.floor(elapsedTime / 60000);  // Convert to minutes
+    const seconds = Math.floor((elapsedTime % 60000) / 1000);  // Convert to seconds
+    const milliseconds = elapsedTime % 1000;  // Get the remaining milliseconds
+
+    document.getElementById("timer").innerText = 
+        `${minutes < 10 ? "0" : ""}${minutes}:${seconds < 10 ? "0" : ""}${seconds}.${milliseconds < 100 ? "0" : ""}${milliseconds}`;
+}
+
 
 
 
