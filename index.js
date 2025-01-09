@@ -21,7 +21,8 @@ masterButton.addEventListener('click', ()=> createGrid(30));
 
 
 function createGrid(number){
-    flagCountDom.innerText = 0
+    flagCountDom.innerText = 0;
+
     cellsInfo.length =0;
     grid.innerHTML = '';
     firstClicked = false;
@@ -66,11 +67,17 @@ const clickAction = (e) => {
         cellObj.xposition === x && cellObj.yposition === y
     );
 
+    if (cellsInfo[cellIndex].isFlagged || cellsInfo[cellIndex].isClicked) {
+        return; 
+    }
+
 //first click
     if (!firstClicked && cellsInfo[cellIndex].isFlagged == false) {
         firstClicked = true;
         cellsInfo[cellIndex].isClicked = true;
+
         clickedCellDiv.firstChild.src = '/assets/empty.png';
+
 
         switch(cellsInfo.length) {
             case 81:
@@ -88,6 +95,7 @@ const clickAction = (e) => {
             default:
               alert('There was a problem generating bombs')
           }
+
     }
 //any other clicks
 
@@ -99,7 +107,7 @@ const clickAction = (e) => {
             grid.removeEventListener('click', clickAction);
             grid.removeEventListener('contextmenu', rightClickHandler)
 
-            for(i = 0; i < cellsInfo.length; i++){
+            for(let i = 0; i < cellsInfo.length; i++){
                 if(cellsInfo[i].isBomb){
                     document.getElementById(`x${cellsInfo[i].xposition}y${cellsInfo[i].yposition}`).firstChild.src = '/assets/bomb.png';
                 }
@@ -111,6 +119,7 @@ const clickAction = (e) => {
 
 
     }
+    expandCells(cellsInfo[cellIndex]);
 };
 
 
@@ -133,12 +142,11 @@ function getRandomIntsWithExclusion(min, max, excluded, count) {
 
 function setBombs(bombNumber) {
 
-    const cellIndex = cellsInfo.findIndex(cellObj => 
-        cellObj.isClicked = true
-    );
+    const cellIndex = cellsInfo.findIndex(cellObj => cellObj.isClicked === true);
+    
     const bombIndexes = getRandomIntsWithExclusion(0, cellsInfo.length-1, cellIndex ,bombNumber);
 
-    for(i=0; i< bombIndexes.length; i++){
+    for(let i=0; i< bombIndexes.length; i++){
         
         cellsInfo[bombIndexes[i]].isBomb = true;
     }
@@ -154,6 +162,19 @@ function setFlag(e){
     const cellIndex = cellsInfo.findIndex(cellObj => 
         cellObj.xposition === x && cellObj.yposition === y
     );
+
+    if (!firstClicked) {
+        alert("Start the game first by clicking any of the boxes!");
+        return;
+    }
+
+    const bombCount = getBombCount();
+
+    if (!cellsInfo[cellIndex].isFlagged && cellsInfo.filter(cell => cell.isFlagged).length >= bombCount) {
+        alert("No more flags available!");
+        return;
+    }
+
     if(cellsInfo[cellIndex].isFlagged == false && cellsInfo[cellIndex].isClicked == false){
 
     cellsInfo[cellIndex].isFlagged = true;
@@ -170,10 +191,57 @@ function setFlag(e){
 }
  
 
-function setFlagCount(){
-    
-    flagCountDom.innerText = cellsInfo.filter(cell => cell.isFlagged).length;
+function setFlagCount() {
+    const bombCount = getBombCount(); 
+    const flaggedCount = cellsInfo.filter(cell => cell.isFlagged).length;
+
+
+    const remainingFlags = bombCount - flaggedCount;
+
+    flagCountDom.innerText = remainingFlags >= 0 ? remainingFlags : 0;
 }
+
+function getCellIndex(x, y) {
+    return cellsInfo.findIndex(cellObj => 
+        cellObj.xposition === x && cellObj.yposition === y
+    );
+}
+
+function expandCells(cell) {
+    if(cell.isBomb){
+        return;
+    }
+    if (cell.countNeighbourBombs() === 0) {
+        const neighbors = cell.checkNeighbours();
+        for (let i = 0; i < neighbors.length; i++) {
+            const neighbor = neighbors[i];
+
+            if (!neighbor.isClicked) {
+                neighbor.isClicked = true;
+                const neighborCellDiv = document.getElementById(`x${neighbor.xposition}y${neighbor.yposition}`);
+                
+                if (neighbor.countNeighbourBombs() === 0) {
+                    neighborCellDiv.firstChild.src = '/assets/empty.png';
+                    expandCells(neighbor);
+                } else {
+
+                    neighborCellDiv.firstChild.src = `/assets/${neighbor.countNeighbourBombs()}.png`;
+
+                }
+            }
+        }
+    } else {
+
+        const clickedCellDiv = document.getElementById(`x${cell.xposition}y${cell.yposition}`);
+        clickedCellDiv.firstChild.src = `/assets/${cell.countNeighbourBombs()}.png`;
+
+    }
+}
+
+function getBombCount() {
+    return cellsInfo.filter(cell => cell.isBomb).length;
+}
+
 
 
 class Cell {
@@ -184,4 +252,33 @@ class Cell {
         this.isClicked = isClicked;
         this.isFlagged = isFlagged;
     }
+
+    checkNeighbours(){
+
+        const neighbour1 = cellsInfo[getCellIndex(this.xposition-1, this.yposition)];
+        const neighbour2 = cellsInfo[getCellIndex(this.xposition+1, this.yposition)];
+        const neighbour3 = cellsInfo[getCellIndex(this.xposition,   this.yposition-1)];
+        const neighbour4 = cellsInfo[getCellIndex(this.xposition,   this.yposition+1)];
+        const neighbour5 = cellsInfo[getCellIndex(this.xposition-1, this.yposition-1)];
+        const neighbour6 = cellsInfo[getCellIndex(this.xposition-1, this.yposition+1)];
+        const neighbour7 = cellsInfo[getCellIndex(this.xposition+1, this.yposition-1)];
+        const neighbour8 = cellsInfo[getCellIndex(this.xposition+1, this.yposition+1)];
+
+        const neighbours = [neighbour1,neighbour2,neighbour3,neighbour4,neighbour5,neighbour6,neighbour7,neighbour8].filter(Boolean);
+        return neighbours;
+    }
+
+    countNeighbourBombs() {
+        const voisins = this.checkNeighbours();
+        let count = 0; 
+        for (let i = 0; i < voisins.length; i++) {
+            if (voisins[i].isBomb) {
+                count++;
+            }
+        }
+        return count;
+    }
+
+
 }
+
