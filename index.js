@@ -133,21 +133,25 @@ const clickAction = (e) => {
         else{
             grid.removeEventListener('click', clickAction);
             grid.removeEventListener('contextmenu', rightClickHandler)
-
+            let gameover = false;
             for(let i = 0; i < cellsInfo.length; i++){
                 if(cellsInfo[i].isBomb){
                     document.getElementById(`x${cellsInfo[i].xposition}y${cellsInfo[i].yposition}`).firstChild.src = '/assets/bomb.png';
+                    gameover= true;
                 }
                 else{
                     document.getElementById(`x${cellsInfo[i].xposition}y${cellsInfo[i].yposition}`).firstChild.src = '/assets/empty.png';
                 }
             }
+            if(gameover){alert('You clicked a bomb, GAME OVER!')}
             stopTimer();
         }
 
 
     }
     expandCells(cellsInfo[cellIndex]);
+    console.log(cellsInfo)
+    winGame();
 };
 
 
@@ -237,8 +241,10 @@ function expandCells(cell) {
     if(cell.isBomb){
         return;
     }
+    cell.isClicked=true;
     if (cell.countNeighbourBombs() === 0) {
         const neighbors = cell.checkNeighbours();
+        console.log(neighbors)
         for (let i = 0; i < neighbors.length; i++) {
             const neighbor = neighbors[i];
 
@@ -308,6 +314,19 @@ function updateTimerDisplay() {
 }
 
 
+function winGame() {
+    
+    if (cellsInfo.every(cell => cell.isBomb || cell.isClicked)) {
+        grid.removeEventListener('click', clickAction);
+        grid.removeEventListener('contextmenu', rightClickHandler);
+
+        alert("Congratulations! You have won the game!");
+
+        stopTimer();
+    }
+}
+
+
 
 
 class Cell {
@@ -344,6 +363,8 @@ class Cell {
         }
         return count;
     }
+
+
 
 
 }
